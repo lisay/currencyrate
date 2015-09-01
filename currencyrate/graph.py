@@ -6,7 +6,7 @@ class DirectedEdge(object):
 		self.v = v
 		self.w = w
 		self.weight = weight
-	def from(self):
+	def fromv(self):
 		return self.v
 	def to(self):
 		return self.w
@@ -99,7 +99,7 @@ class EdgeWeightedCycleFinder(object):
 				tv = v
 				while tv != w:
 					tcycle.append(edgeTo[tv])
-					tv = edgeTo[tv].from()
+					tv = edgeTo[tv].fromv()
 				self.cycle.append(tcycle)
 		self.onstack[v] = False
 	def cycle(self):
@@ -115,7 +115,7 @@ class BellmanFordSP(object):
 		self.queue = PriorityQueue()
 		self.inqueue = list()
 		self.cost = 0
-		for i range(graphpara.vnum):
+		for i in range(graphpara.vnum):
 			self.negativecircle.append(None)
 			self.distTo.append(float("inf"))
 			self.edgeTo.append(None)
@@ -125,13 +125,13 @@ class BellmanFordSP(object):
 		self.edgeTo[s] = None
 		self.queue.insert((s, 0.0))
 		self.inqueue[s] = True
-		while !self.queue.isEmpty()
+		while not self.queue.isEmpty():
 			index = self.queue.deleteMin()
 			self.inqueue[index] = False
 			relax(index)
 	def relax(self, v):
 		for e in self.graphpara.adj(v):
-			v = e.from()
+			v = e.fromv()
 			w = e.to()
 			if self.distTo[w] > self.distTo[v] + e.weight:
 				self.distTo[w] = self.distTo[v] + e.weight
@@ -155,24 +155,9 @@ class BellmanFordSP(object):
 		tv = v
 		while tv != s:
 			path.append(edgeTo[tv])
-			tv = edgeTo[tv].from()
+			tv = edgeTo[tv].fromv()
 		return path
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-			
-
-
-
-
+#if __name__ == "__main__":
+	

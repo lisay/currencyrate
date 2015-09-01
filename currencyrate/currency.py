@@ -11,9 +11,10 @@ class CurrencyRate(object):
 		self.bidprice = []
 		self.askprice = []
 	def size(self):
-		return len(self.sign)
+		return len(self.time)
 	def timeConvert(self, time):#10:23am -> 10:23:00
-		print "time: ", time
+		if time == "0":
+			return time
 		time = time[1:-1]
 		li = time.split(":")
 		hour = int(li[0])
@@ -22,7 +23,8 @@ class CurrencyRate(object):
 			hour += 12
 		return "%s:%s:00"%(hour, minute)
 	def dateConvert(self, date):#8/29/2015 -> 2015-8-29
-		print "date: ", date
+		if date == "0":
+			return date
 		dli = date[1:-1].split("/")
 		print "dli: ",dli
 		month = int(dli[0])
@@ -41,6 +43,9 @@ class CurrencyRate(object):
 		#print resStr
 		lines = resStr.split("\n")
 		for line in lines:
+			if "N/A" in line:
+				#continue
+				line = line.replace("N/A", "0")
 			li = line.strip().split(",")
 			self.currencyrate.append(float(li[1]))
 			self.date.append(self.dateConvert(li[2]))
@@ -58,12 +63,3 @@ if __name__ == "__main__":
 	test = CurrencyRate(["USDCNY", "CNYUSD"])
 	test.getCurrencyRate()
 	print test
-	
-
-
-
-
-
-
-
-
