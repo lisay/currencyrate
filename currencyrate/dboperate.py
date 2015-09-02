@@ -9,8 +9,6 @@ class DB(object):
 		self.cur.execute("create database if not exists %s" % name)
 	def selectDB(self, name):
 		self.cnt.select_db(name)
-		self.cur.execute("select * from CurrencyTable")
-		print cur.fetchone()
 		
 	def createTable(self, name):
 		self.cur.execute("create table if not exists %s(currency varchar(8) not null, cdate date not null, ctime time not null, currencyrate double default 0.0, bidprice double default 0.0, askprice double default 0.0)" % name)
@@ -21,21 +19,20 @@ class DB(object):
 		self.cur.execute(s + "(%s, %s, %s, %s, %s, %s)", li)
 	def getLastestData(self, s):
 		#CNYUSD
-		print "lastest"
-		s = "select * from %s where currency=%s order by cdate, ctime" % (self.table, s)
-		#print s
-		#self.cur.execute(s)
-		self.cur.execute("select * from CurrencyTable")
-		print cur.fetchone()
-		#ret = self.cur.fetchall()[-1]
+		execstr = "select * from %s where currency='%s' order by cdate,ctime" % (self.table,s)
+		self.cur.execute(execstr)
+		#self.cur.execute("select * from %s" % self.table)
+		#print cur.fetchone()
+		ret = self.cur.fetchall()[-1]
 		#currencyrate bidprice askprice
-		#return ret[-3:]		
+		return ret[-3:]		
 	def updateDB(self):
 		self.cnt.commit()
 	def closeDB(self):
 		self.cur.close()
 		self.cnt.commit()
 		self.cnt.close()
+	#add currencyrate to db
 	def addCurrencyRate(self, cr):
 		rownum = cr.size()
 		for i in range(rownum):
@@ -50,7 +47,12 @@ class DB(object):
 			li = [currency, cdate, ctime, currencyrate, bidprice, askprice]
 			self.insertInto(li)	 
 		self.updateDB()
-
+	def getCurrencyList(self):
+		ret = []
+		self.cur.execute("select currency from %s" % self.table)
+		s = self.cur.fetchall()
+		ret = [x[0] for x in s]
+		return ret
 
 
 

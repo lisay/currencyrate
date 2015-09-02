@@ -1,6 +1,6 @@
 import  sys
 sys.path.append("../")
-
+import math
 import currency
 import dboperate
 import time
@@ -46,12 +46,25 @@ def produceList():
 def testBuildGraph(db):
 	print "start"
 	db.selectDB("testdb_2")
-	db.selectTable("CurrencyTable")
+	db.selectTable("currencytable")
 	print "db Done"
-	sign = produceList()
-	for i in sign:
-		t = db.getLastestData(i)
-		print t
+	sign = db.getCurrencyList()
+	graphpara = graph.EdgeWeightedDigraph(len(currencydict))
+	for s in sign:
+		v = convertDict.get(s[0:3])
+		w = convertDict.get(s[3:])
+		c = db.getLastestData(s)
+		weight = math.log(c[0])
+		e = graph.DirectedEdge(v, w, weight)
+		graphpara.addEdge(e)
+	for i in range(graphpara.V()):
+		print currencydict[i], ":",
+		for e in graphpara.adj(i):
+			print e,
+		print 	
+	bellmanford = graph.BellmanFordSP(graphpara, 0)
+	ret = bellmanford.pathTo(14)	
+		
 		
 
 

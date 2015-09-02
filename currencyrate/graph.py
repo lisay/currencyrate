@@ -11,7 +11,7 @@ class DirectedEdge(object):
 	def to(self):
 		return self.w
 	def __str__(self):
-		return "%s->%s: %s\n" % (currencydict[v], currencydict[w], self.weight)
+		return "%s->%s: %s\n" % (currencydict[self.v], currencydict[self.w], self.weight)
 
 
 class EdgeWeightedDigraph(object):
@@ -32,6 +32,10 @@ class EdgeWeightedDigraph(object):
 			for e in v:
 				ret.append(e)
 		return ret
+	def V(self):
+		return self.vnum
+	def E(self):
+		return self.enum
 	def __str__(self):
 		ret = str()
 		index = 0
@@ -84,7 +88,7 @@ class EdgeWeightedCycleFinder(object):
 			self.onstack.append(False)
 			self.marked.append(False)
 		for v in range(n):
-			if not marked[v]:
+			if not self.marked[v]:
 				self.dfs(graph, v)
 	def dfs(self, G, v):
 		self.onstack[v] = True
@@ -93,7 +97,7 @@ class EdgeWeightedCycleFinder(object):
 			w = e.to()
 			if not self.marked[w]:
 				self.edgeTo[w] = e
-				dfs(G, w)
+				self.dfs(G, w)
 			elif self.onstack[w]:
 				tcycle = list()
 				tv = v
@@ -102,7 +106,7 @@ class EdgeWeightedCycleFinder(object):
 					tv = edgeTo[tv].fromv()
 				self.cycle.append(tcycle)
 		self.onstack[v] = False
-	def cycle(self):
+	def getcycle(self):
 		return self.cycle
 	def hasNegativeCycle(self):
 		return self.cycle.count() == 0
@@ -111,12 +115,12 @@ class BellmanFordSP(object):
 		self.graphpara = graphpara
 		self.distTo = list()
 		self.edgeTo = list()
-		self.negativecircle = list()
+		self.negativecycle = list()
 		self.queue = PriorityQueue()
 		self.inqueue = list()
 		self.cost = 0
 		for i in range(graphpara.vnum):
-			self.negativecircle.append(None)
+			self.negativecycle.append(None)
 			self.distTo.append(float("inf"))
 			self.edgeTo.append(None)
 			self.inqueue.append(False)
@@ -128,7 +132,7 @@ class BellmanFordSP(object):
 		while not self.queue.isEmpty():
 			index = self.queue.deleteMin()
 			self.inqueue[index] = False
-			relax(index)
+			self.relax(index)
 	def relax(self, v):
 		for e in self.graphpara.adj(v):
 			v = e.fromv()
@@ -137,18 +141,18 @@ class BellmanFordSP(object):
 				self.distTo[w] = self.distTo[v] + e.weight
 				self.edgeTo[w] = e
 				if not self.inqueue[w]:
-					self.queue.insert((w, distTo[w]))
+					self.queue.insert((w, self.distTo[w]))
 					self.inqueue[w] = True
-				cost += 1
-				if cost % self.graphpara.vnum == 0:
-					self.findNegativeCircle();					
+				self.cost += 1
+				if self.cost % self.graphpara.vnum == 0:
+					self.negativecycle = self.findNegativeCircle();					
 	def findNegativeCircle(self):
 		graph = EdgeWeightedDigraph(self.graphpara.vnum)
 		for e in self.edgeTo:
 			if not e == None:
 				graph.addEdge(e)
 		cycleFinder = EdgeWeightedCycleFinder(graph)
-		cycle = cycleFinder.cycle()
+		cycle = cycleFinder.getcycle()
 		return cycle
 	def pathTo(self, v):
 		path = list()
