@@ -1,7 +1,6 @@
-currencydict = {0:"CNY", 1:"JPY", 2:"GBP", 3:"CHF",4:"CAD",5:"HKD",6:"FIM", 7:"IEP", 8:"LUF",9:"PTE", 10:"IDR",11:"NZD",12:"SUR",13:"KRW",\
-		14:"USD", 15:"EUR",16:"DEM", 17:"FRF",18:"AUD", 19:"ATS",20:"BEF", 21:"ITL", 22:"NLG",23:"ESP",24:"MYR",25:"PHP",26:"SGD",\
-		27:"THB"}
+from head import currencydict
 class DirectedEdge(object):
+"""directed edge operations"""
 	def __init__(self, v, w, weight):
 		self.v = v
 		self.w = w
@@ -15,10 +14,11 @@ class DirectedEdge(object):
 
 
 class EdgeWeightedDigraph(object):
+"""directed graph with weight, and the adj list is consist of directed edges"""
 	def __init__(self, n):
 		self.adjpara = list()
 		for i in range(n):
-			self.adjpara.append(list())#lin jie biao
+			self.adjpara.append(list())#adj list
 		self.vnum = n
 		self.enum = 0
 	def addEdge(self, e):
@@ -40,16 +40,18 @@ class EdgeWeightedDigraph(object):
 		ret = str()
 		index = 0
 		for v in self.adjpara:
-			ret += currencydict[index] + ": "
+			ret += currencydict[index] + ": \n"
 			for e in v:
 				ret += str(e)
 			ret += "\n"
 			index += 1	
 		return ret
 class PriorityQueue(object):
+"""priority queueu, data structure is bases on a dict and a list, and the key is the priority factor same to the list, and the value is the number of vertex """
 	def __init__(self, dic = dict()):
 		self.dic = dic
 		self.keys = sorted(dic.keys())
+	#binary search, and return the pos to insert into
 	def rank(self, v):
 		lo = 0
 		hi = len(self.keys) - 1
@@ -61,7 +63,8 @@ class PriorityQueue(object):
 				lo = mid + 1
 			else:
 				return mid
-		return lo				
+		return lo
+	#t is a tuple, t[0] is the number of vertex, t[1] is the distTo[t[0]]				
 	def insert(self, t):
 		self.dic[t[1]] = t[0]
 		self.keys.insert(self.rank(t[1]), t[1])#a[1.01] = 0, a[0.789] = 1, ...
@@ -74,9 +77,15 @@ class PriorityQueue(object):
 			return value
 	def isEmpty(self):
 		return len(self.dic) == 0
+	def __str__(self):
+		ret = str()
+		for k in self.keys:
+			ret += " (%s:%s) " % (k, self.dic[k])
+		return ret
 	
 		
 class EdgeWeightedCycleFinder(object):
+"""find the cycle in the graph"""
 	def __init__(self, graph):
 		self.onstack = list()
 		self.cycle = list()
@@ -102,8 +111,9 @@ class EdgeWeightedCycleFinder(object):
 				tcycle = list()
 				tv = v
 				while tv != w:
-					tcycle.append(edgeTo[tv])
-					tv = edgeTo[tv].fromv()
+					tcycle.append(self.edgeTo[tv])
+					tv = self.edgeTo[tv].fromv()	
+				tcycle.append(e)
 				self.cycle.append(tcycle)
 		self.onstack[v] = False
 	def getcycle(self):
@@ -111,16 +121,17 @@ class EdgeWeightedCycleFinder(object):
 	def hasNegativeCycle(self):
 		return self.cycle.count() == 0
 class BellmanFordSP(object):
+"""bellman-ford operations"""
 	def __init__(self, graphpara, s):
 		self.graphpara = graphpara
 		self.distTo = list()
 		self.edgeTo = list()
 		self.negativecycle = list()
+		self.hasnegativecycle = False
 		self.queue = PriorityQueue()
 		self.inqueue = list()
 		self.cost = 0
 		for i in range(graphpara.vnum):
-			self.negativecycle.append(None)
 			self.distTo.append(float("inf"))
 			self.edgeTo.append(None)
 			self.inqueue.append(False)
@@ -129,12 +140,21 @@ class BellmanFordSP(object):
 		self.edgeTo[s] = None
 		self.queue.insert((s, 0.0))
 		self.inqueue[s] = True
-		while not self.queue.isEmpty():
+		while (not self.queue.isEmpty()) and (not self.hasNegativeCycle()):
+			print "queue: ", self.queue
 			index = self.queue.deleteMin()
+			print "index: " ,index
 			self.inqueue[index] = False
 			self.relax(index)
-	def relax(self, v):
-		for e in self.graphpara.adj(v):
+		print "negativeCycle: "
+		for n in self.negativecycle:
+			for i in n:
+				print i,
+			print 
+		print "queue: ", self.queue
+	#relax a vertex
+	def relax(self, vpara):
+		for e in self.graphpara.adj(vpara):
 			v = e.fromv()
 			w = e.to()
 			if self.distTo[w] > self.distTo[v] + e.weight:
@@ -143,25 +163,26 @@ class BellmanFordSP(object):
 				if not self.inqueue[w]:
 					self.queue.insert((w, self.distTo[w]))
 					self.inqueue[w] = True
-				self.cost += 1
-				if self.cost % self.graphpara.vnum == 0:
-					self.negativecycle = self.findNegativeCircle();					
+			self.cost += 1
+			if self.cost % self.graphpara.vnum == 0 and self.cost / self.graphpara.vnum == self.graphpara.vnum:
+				self.negativecycle = self.findNegativeCircle()
+	#find the nagative cycle
 	def findNegativeCircle(self):
-		graph = EdgeWeightedDigraph(self.graphpara.vnum)
+		g = EdgeWeightedDigraph(self.graphpara.vnum)
 		for e in self.edgeTo:
 			if not e == None:
-				graph.addEdge(e)
-		cycleFinder = EdgeWeightedCycleFinder(graph)
+				g.addEdge(e)
+		cycleFinder = EdgeWeightedCycleFinder(g)
 		cycle = cycleFinder.getcycle()
 		return cycle
 	def pathTo(self, v):
 		path = list()
 		tv = v
-		while tv != s:
-			path.append(edgeTo[tv])
-			tv = edgeTo[tv].fromv()
+		count = 0
+		while tv != self.s and count < 30:
+			count += 1
+			path.append(self.edgeTo[tv])
+			tv = self.edgeTo[tv].fromv()
 		return path
-
-
-#if __name__ == "__main__":
-	
+	def hasNegativeCycle(self):
+		return len(self.negativecycle) > 0

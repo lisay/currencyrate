@@ -1,10 +1,12 @@
 import urllib2
 import urllib
 url = r"http://download.finance.yahoo.com/d/quotes.csv"
-url2 = r"http://download.finance.yahoo.com/d/quotes.csv?s=USDCNY=X&f=sl1d1t1ba&e=.csv"
 class CurrencyRate(object):
+"""fetch the real-time currencyrate from the url"""
 	def __init__(self, sign):
+		#url para, like CNY to USD: CNYUSD
 		self.sign = sign
+		#date\time\currencyrate\bidprice\askprice are the data return as the repond
 		self.date = []
 		self.time = []
 		self.currencyrate = []
@@ -12,7 +14,8 @@ class CurrencyRate(object):
 		self.askprice = []
 	def size(self):
 		return len(self.time)
-	def timeConvert(self, time):#10:23am -> 10:23:00
+	#1:23pm -> 13:23:00
+	def timeConvert(self, time):
 		if time == "0":
 			return time
 		time = time[1:-1]
@@ -22,7 +25,8 @@ class CurrencyRate(object):
 		if time[-2] == 'p':
 			hour += 12
 		return "%s:%s:00"%(hour, minute)
-	def dateConvert(self, date):#8/29/2015 -> 2015-8-29
+	#8/29/2015 -> 2015-8-29
+	def dateConvert(self, date):		
 		if date == "0":
 			return date
 		dli = date[1:-1].split("/")
@@ -40,11 +44,10 @@ class CurrencyRate(object):
 		turl = url + "?" + para
 		response = urllib2.urlopen(turl)
 		resStr = response.read().strip()
-		#print resStr
 		lines = resStr.split("\n")
 		for line in lines:
+			#there is no currencyrate bewteen two currency
 			if "N/A" in line:
-				#continue
 				line = line.replace("N/A", "0")
 			li = line.strip().split(",")
 			self.currencyrate.append(float(li[1]))
