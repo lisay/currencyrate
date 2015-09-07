@@ -101,9 +101,78 @@ def testBuildGraph(db):
 	bellmanford = graph.BellmanFordSP(graphpara, 0)
 	ret = bellmanford.negativecycle
 	#path = bellmanford.pathTo(1)
-		
+def produceG(vnum, eli):
+	g = graph.EdgeWeightedDigraph(vnum)
+	for e in eli:
+		g.addEdge(e)
+	return g
 
+def testDFOrder(g):
+	df = graph.DFOrder(g)
+	print df.reverseList()
+def runTestDFOrder():
+	eli = []
+	weight = 1
+	eli.append(graph.DirectedEdge(0, 1, weight))
+	eli.append(graph.DirectedEdge(0, 2, weight))
+	eli.append(graph.DirectedEdge(0, 3, weight))
+	eli.append(graph.DirectedEdge(1, 3, weight))
+	eli.append(graph.DirectedEdge(2, 4, weight))
+	eli.append(graph.DirectedEdge(3, 5, weight))
+	eli.append(graph.DirectedEdge(4, 5, weight))
+	g = produceG(6, eli)
+	testDFOrder(g)
 
+def testTopologyOrder(g):
+	t = graph.TopologyOrder(g)
+	print t.order()
+
+def runtestTopologyOrder():
+	eli = []
+	weight = 1
+	eli.append(graph.DirectedEdge(0, 1, weight))
+	eli.append(graph.DirectedEdge(0, 2, weight))
+	eli.append(graph.DirectedEdge(0, 3, weight))
+	eli.append(graph.DirectedEdge(1, 3, weight))
+	eli.append(graph.DirectedEdge(2, 4, weight))
+	eli.append(graph.DirectedEdge(3, 5, weight))
+	eli.append(graph.DirectedEdge(4, 5, weight))
+	g = produceG(6, eli)
+	#g = produceGraph()
+	testTopologyOrder(g)
+def produceEdgeList(tpl):
+	eli = []
+	for t in tpl:
+		eli.append(graph.DirectedEdge(t[0], t[1], t[2]))
+	return eli
+
+def testAcyclicSP(g, s, t):
+	print "%s->%s" % (s, t)
+	a = graph.AcyclicSP(g, s)
+	path = a.pathTo(t)
+	if path == None:
+		print "No Way"
+		return
+	for p in path:
+		print p
+	print a.distTof(t)
+def runtestAcyclicSP():
+	tpl = [(5, 1, 0.11), (5, 7, 0.12), (5, 4, 0.13) ,(1, 3, 0.21), (3, 7, 0.22), (3, 6, 0.24), (7, 2, 0.33), (0, 2, 0.26),(4, 7, 0.14), (4, 0, 0.15),\
+ (6, 2, 0.19), (6, 0, 0.17), (6, 4, 0.33)]
+	eli = produceEdgeList(tpl)
+	g = produceG(8, eli)
+	testAcyclicSP(g, 5, 6)
+	print "-"*30
+	testAcyclicSP(g, 0, 6)
+	print "-"*30
+	testAcyclicSP(g, 4, 7)
+	print "-"*30
+	testAcyclicSP(g, 1, 3)
+	print "-"*30
+	testAcyclicSP(g, 3, 4)
+	print "-"*30
+	testAcyclicSP(g, 2, 6)
+	print "-"*30
 if __name__ == "__main__":
 	db = dboperate.DB("localhost", "root", "lishuaiyuan")
 	#testDB(db)
@@ -116,10 +185,11 @@ if __name__ == "__main__":
 	#print cr
 	#g = produceGraph()
 	#testBellmanFord(g)
-	testBuildGraph(db)	
+	#testBuildGraph(db)	
 	#testEdgeWeightedCycleFinder(g)
-	
-
+	#runTestDFOrder()
+	#runtestTopologyOrder()
+	runtestAcyclicSP()
 
 
 

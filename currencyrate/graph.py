@@ -10,7 +10,8 @@ class DirectedEdge(object):
 	def to(self):
 		return self.w
 	def __str__(self):
-		return "%s->%s: %s\n" % (currencydict[self.v], currencydict[self.w], self.weight)
+		#return "%s->%s: %s\n" % (currencydict[self.v], currencydict[self.w], self.weight)
+		return "%s->%s: %s\n" % (self.v, self.w, self.weight)
 
 
 class EdgeWeightedDigraph(object):
@@ -118,8 +119,8 @@ class EdgeWeightedCycleFinder(object):
 		self.onstack[v] = False
 	def getcycle(self):
 		return self.cycle
-	def hasNegativeCycle(self):
-		return self.cycle.count() == 0
+	def hasCycle(self):
+		return len(self.cycle) != 0
 class BellmanFordSP(object):
 	"""bellman-ford operations"""
 	def __init__(self, graphpara, s):
@@ -186,3 +187,99 @@ class BellmanFordSP(object):
 		return path
 	def hasNegativeCycle(self):
 		return len(self.negativecycle) > 0
+class DFOrder(object):
+	"""traverse graph by depth first order"""
+	def __init__(self, G):
+		self.G = G
+		self.reverseli = []
+		self.marked = []
+		vnum = G.V()
+		for i in range(vnum):
+			self.marked.append(False)
+		for i in range(vnum):
+			if not self.marked[i]:
+				self.marked[i] = True
+				self.dfs(i)
+		self.reverseli.reverse()#reverse the list, to get the topology order
+	def dfs(self, v):
+		for e in self.G.adj(v):
+			vx = e.fromv()
+			wx = e.to()
+			if not self.marked[wx]:
+				self.marked[wx] = True
+				self.dfs(wx)
+		self.reverseli.append(v)
+	def reverseList(self):
+		return self.reverseli
+
+
+class TopologyOrder(object):
+	"""acquire the topology order of the acyclic graph"""
+	def __init__(self, G):
+		cyclefinder = EdgeWeightedCycleFinder(G)	
+		df = DFOrder(G)
+		self.topologyli = []
+		if not cyclefinder.hasCycle():	
+			self.topologyli = df.reverseList()
+		
+	def order(self):
+		return self.topologyli
+
+class AcyclicSP(object):
+	"""get the shortest path of the acyclic graph"""
+	def __init__(self, G, s):
+		self.G = G
+		self.edgeTo = []
+		self.distTo = []
+		self.marked = []
+		self.vnum = G.V()
+		self.s = s
+		for i in range(self.vnum):
+			self.distTo.append(float("inf"))
+			self.edgeTo.append(None)
+			self.marked.append(False)
+		self.distTo[s] = 0
+		topologyorder = TopologyOrder(G)
+		order = topologyorder.order()
+		for v in order:
+			self.relax(v)
+	def pathTo(self, v):
+		retpath = []
+		tv = v
+		if not self.hasPathTo(v):
+			return
+		while tv != self.s:
+			e = self.edgeTo[tv]
+			retpath.append(e)
+			tv = e.fromv()
+		return retpath
+	def hasPathTo(self, v):
+		return self.distTo[v] != float("inf")
+	def distTof(self, v):
+		return self.distTo[v]
+	def relax(self, v):
+		for e in self.G.adj(v):
+			self.relaxEdge(e)
+	def relaxEdge(self, e):
+		vx = e.fromv()
+		wx = e.to()
+		if self.distTo[wx] > self.distTo[vx] + e.weight:
+			self.distTo[wx] = self.distTo[vx] + e.weight	
+			self.edgeTo[wx] = e
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
