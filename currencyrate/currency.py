@@ -2,7 +2,7 @@ import urllib2
 import urllib
 url = r"http://download.finance.yahoo.com/d/quotes.csv"
 class CurrencyRate(object):
-"""fetch the real-time currencyrate from the url"""
+	"""fetch the real-time currencyrate from the url"""
 	def __init__(self, sign):
 		#url para, like CNY to USD: CNYUSD
 		self.sign = sign

@@ -1,6 +1,6 @@
 from head import currencydict
 class DirectedEdge(object):
-"""directed edge operations"""
+	"""directed edge operations"""
 	def __init__(self, v, w, weight):
 		self.v = v
 		self.w = w
@@ -14,7 +14,7 @@ class DirectedEdge(object):
 
 
 class EdgeWeightedDigraph(object):
-"""directed graph with weight, and the adj list is consist of directed edges"""
+	"""directed graph with weight, and the adj list is consist of directed edges"""
 	def __init__(self, n):
 		self.adjpara = list()
 		for i in range(n):
@@ -47,7 +47,7 @@ class EdgeWeightedDigraph(object):
 			index += 1	
 		return ret
 class PriorityQueue(object):
-"""priority queueu, data structure is bases on a dict and a list, and the key is the priority factor same to the list, and the value is the number of vertex """
+	"""priority queueu, data structure is bases on a dict and a list, and the key is the priority factor same to the list, and the value is the number of vertex """
 	def __init__(self, dic = dict()):
 		self.dic = dic
 		self.keys = sorted(dic.keys())
@@ -85,7 +85,7 @@ class PriorityQueue(object):
 	
 		
 class EdgeWeightedCycleFinder(object):
-"""find the cycle in the graph"""
+	"""find the cycle in the graph"""
 	def __init__(self, graph):
 		self.onstack = list()
 		self.cycle = list()
@@ -121,7 +121,7 @@ class EdgeWeightedCycleFinder(object):
 	def hasNegativeCycle(self):
 		return self.cycle.count() == 0
 class BellmanFordSP(object):
-"""bellman-ford operations"""
+	"""bellman-ford operations"""
 	def __init__(self, graphpara, s):
 		self.graphpara = graphpara
 		self.distTo = list()

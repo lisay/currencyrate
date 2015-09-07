@@ -2,7 +2,7 @@ import MySQLdb
 import time
 
 class DB(object):
-"""database operation"""
+	"""database operation"""
 	def __init__(self, hostpara, userpara, passwdpara):
 		self.cnt = MySQLdb.connect(host = hostpara, user = userpara, passwd = passwdpara)
 		self.cur = self.cnt.cursor()
